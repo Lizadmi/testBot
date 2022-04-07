@@ -1,4 +1,5 @@
 <?php
+echo 123;
 $new_url = 'https://lizadmi.github.io/testBot/public/index.php';
-header('Location: '.$new_url);
+//header('Location: '.$new_url);
 ?>
