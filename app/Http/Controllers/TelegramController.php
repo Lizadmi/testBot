@@ -13,7 +13,7 @@ class TelegramController extends Controller
         $lastMessage = "";
 
         $params = [
-            "offset"=>$lastMessage,
+            "offset" => $lastMessage,
         ];
 
         $keyboard = [
@@ -28,21 +28,25 @@ class TelegramController extends Controller
             "resize_keyboard" => true
         ];
 
-        $weather =  json_decode(\Illuminate\Support\Facades\Http::get("http://api.weatherapi.com/v1/current.json",[
-            "key"=>"5dec626e40c44d9193471014220704",
-            "q"=>"Moscow"
-        ]),JSON_OBJECT_AS_ARRAY);
+        $weather = json_decode(\Illuminate\Support\Facades\Http::get("http://api.weatherapi.com/v1/current.json", [
+            "key" => "5dec626e40c44d9193471014220704",
+            "q" => "Moscow"
+        ]), JSON_OBJECT_AS_ARRAY);
 
         $temperature = $weather["current"]["temp_c"];
 
-
-
         $response = (json_decode(\Illuminate\Support\Facades\Http::get("https://api.telegram.org/bot" . config('bot.bot') . "/getUpdates"), JSON_OBJECT_AS_ARRAY));
 
-        dd($response["result"]);
+
+
+
 
         foreach ($response["result"] as $resp) {
             var_dump($resp);
+            $validated = $resp["message"]["from"]->validate([
+                'id' => 'unique:id',
+            ]);
+
 //            echo $resp["message"]["from"]["first_name"]."<br>";
 //            echo $resp["message"]["from"]["last_name"]."<br>";
 //            echo $resp["message"]["from"]["username"]."<br><br>";
