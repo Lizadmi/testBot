@@ -13,12 +13,6 @@ class TelegramController extends Controller
 {
     public function getUpdates()
     {
-        $lastMessage = "";
-
-        $params = [
-            "offset" => $lastMessage,
-        ];
-
         $keyboard = [
             "keyboard" => [
                 [
@@ -31,8 +25,6 @@ class TelegramController extends Controller
             "resize_keyboard" => true
         ];
 
-
-
         $weather = json_decode(\Illuminate\Support\Facades\Http::get("http://api.weatherapi.com/v1/current.json", [
             "key" => "5dec626e40c44d9193471014220704",
             "q" => "Moscow"
@@ -44,7 +36,7 @@ class TelegramController extends Controller
 
         foreach ($response["result"] as $resp) {
 
-            if ($resp["message"]["text"] == "/start" and !UserList::where("id_user",$resp["message"]["from"]["id"])->count()) {
+            if ($resp["message"]["text"] == "/start" and !UserList::where("id_user", $resp["message"]["from"]["id"])->count()) {
                 $userList = new UserList();
                 $userList->id_user = $resp["message"]["from"]["id"];
                 $userList->is_bot = $resp["message"]["from"]["is_bot"];
@@ -60,29 +52,29 @@ class TelegramController extends Controller
                     'reply_markup' => json_encode($keyboard)
                 ]);
             }
-//            if ($resp["message"]["text"] == "Текущая температура воздуха МСК") {
-//                return \Illuminate\Support\Facades\Http::post("https://api.telegram.org/bot" . config('bot.bot') . "/sendMessage", [
-//                    'chat_id' => $resp["message"]["chat"]["id"],
-//                    'text' => "$temperature",
-//                ]);
-//            }
+            if ($resp["message"]["text"] == "Текущая температура воздуха МСК") {
+                return \Illuminate\Support\Facades\Http::post("https://api.telegram.org/bot" . config('bot.bot') . "/sendMessage", [
+                    'chat_id' => $resp["message"]["chat"]["id"],
+                    'text' => "$temperature",
+                ]);
+            }
+
 
             if ($resp["message"]["text"] == "Список пользователей") {
 
-                $userList = UserList::all("first_name","last_name","created_at");
+                $userList = UserList::all("first_name", "last_name", "created_at");
 
                 $inlineKeyboard = [
                     "inline_keyboard" => []
                 ];
 
-                foreach ($userList as $user){
-                    array_push($inlineKeyboard["inline_keyboard"],[[
-                        "text"=>$user->first_name." ".$user->last_name,
-                        "callback_data"=>$user->created_at->format('Y-m-d')
+                foreach ($userList as $user) {
+                    array_push($inlineKeyboard["inline_keyboard"], [[
+                        "text" => $user->first_name . " " . $user->last_name,
+                        "callback_data" => $user->created_at->format('d-m-Y')
                     ]
                     ]);
                 }
-
 
                 return \Illuminate\Support\Facades\Http::post("https://api.telegram.org/bot" . config('bot.bot') . "/sendMessage", [
                     'chat_id' => $resp["message"]["chat"]["id"],
